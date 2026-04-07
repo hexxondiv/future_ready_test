@@ -20,13 +20,15 @@ if (is_readable($envFile)) {
     if ($lines !== false) {
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) {
+            if ($line === '' || (isset($line[0]) && $line[0] === '#')) {
                 continue;
             }
-            if (!str_contains($line, '=')) {
+            if (strpos($line, '=') === false) {
                 continue;
             }
-            [$k, $v] = explode('=', $line, 2);
+            $parts = explode('=', $line, 2);
+            $k = $parts[0];
+            $v = $parts[1] ?? '';
             $k = trim($k);
             $v = trim($v, " \t\"'");
             if ($k !== '' && getenv($k) === false) {
