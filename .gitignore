@@ -1,0 +1,40 @@
+# Secrets — copy env.example to .env locally
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs & temp
+*.log
+*.tmp
+*.temp
+/tmp/
+/cache/
+
+# PHP
+vendor/
+composer.phar
+.phpunit.result.cache
+.php-cs-fixer.cache
+
+# Optional local SQLite (if ever reintroduced)
+*.sqlite
+*.sqlite3
+/data/
+
+# Node (if added later)
+node_modules/
+npm-debug.log*
+yarn-error.log*

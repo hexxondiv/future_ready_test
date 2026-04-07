@@ -1,0 +1,3015 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future-Ready School Test · Educare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0A1628;
+      --navy-mid: #12213D;
+      --navy-light: #1A3A6B;
+      --navy-mist: #1e3a5f;
+      --gold: #E8A427;
+      --gold-light: #F5C96A;
+      --gold-pale: #FDF3DC;
+      --teal: #00C6A7;
+      --teal-pale: #E0F9F5;
+      --white: #FFFFFF;
+      --off-white: #F8F6F1;
+      --smoke: #F0EDE6;
+      --stone: #D8D2C6;
+      --ash: #8A8176;
+      --danger: #C13A2E;
+      --danger-pale: #FDF0EE;
+      --warning: #C47D00;
+      --warning-pale: #FEF6E4;
+      --success: #0F6E56;
+      --success-pale: #E1F5EE;
+      --info: #185FA5;
+      --info-pale: #E6F1FB;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND SYSTEM ── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: var(--navy);
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+
+    .bg-orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--gold);
+      top: -200px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .bg-orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--teal);
+      bottom: -100px;
+      left: -150px;
+      animation-delay: -8s;
+    }
+
+    .bg-orb-3 {
+      width: 400px;
+      height: 400px;
+      background: #4A6FA5;
+      top: 40%;
+      left: 40%;
+      animation-delay: -4s;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(40px, 30px) scale(1.08);
+      }
+    }
+
+    /* ── LAYOUT ── */
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      background: rgba(10, 22, 40, 0.5);
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 32px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--white);
+    }
+
+    .topbar-tag {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── INTRO SCREEN ── */
+    .intro-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      min-height: calc(100vh - 68px);
+    }
+
+    .intro-left {
+      padding: 5rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .intro-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+    }
+
+    .intro-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .intro-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(40px, 4.5vw, 64px);
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .intro-body {
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      max-width: 440px;
+      margin-bottom: 2.5rem;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .stat-divider {
+      width: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      align-self: stretch;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 36px;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: fit-content;
+      text-decoration: none;
+    }
+
+    .btn-start:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(232, 164, 39, 0.35);
+    }
+
+    .btn-start-arrow {
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .btn-start:hover .btn-start-arrow {
+      transform: translateX(4px);
+    }
+
+    .intro-right {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .preview-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 360px;
+      backdrop-filter: blur(20px);
+    }
+
+    .preview-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preview-sec {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .preview-sec-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(232, 164, 39, 0.15);
+      border: 1px solid rgba(232, 164, 39, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .preview-sec-name {
+      font-weight: 500;
+    }
+
+    .preview-sec-qs {
+      margin-left: auto;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .preview-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── REGISTRATION SCREEN ── */
+    .reg-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .reg-left {
+      padding: 5rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .reg-right {
+      padding: 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .reg-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .reg-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .reg-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .reg-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .reg-body {
+      font-size: 15px;
+      line-height: 1.7;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 2rem;
+      max-width: 400px;
+    }
+
+    .reg-trust {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .reg-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .reg-trust-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .reg-form-wrap {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 16px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .reg-form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.35rem;
+    }
+
+    .reg-form-sub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 1.75rem;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-row.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .form-input {
+      padding: 13px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      outline: none;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    select.form-input {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select.form-input option {
+      background: #12213D;
+      color: #fff;
+    }
+
+    .form-input:focus {
+      border-color: var(--gold);
+      background: rgba(232, 164, 39, 0.05);
+      box-shadow: 0 0 0 3px rgba(232, 164, 39, 0.1);
+    }
+
+    .form-input.error {
+      border-color: #E24B4A;
+      background: rgba(226, 75, 74, 0.05);
+    }
+
+    .form-error-msg {
+      font-size: 11px;
+      color: #E05050;
+      display: none;
+      margin-top: 2px;
+    }
+
+    .form-error-msg.visible {
+      display: block;
+    }
+
+    .btn-register {
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 15px;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-register:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(232, 164, 39, 0.3);
+    }
+
+    .reg-privacy {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.25);
+      text-align: center;
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+
+    .back-to-intro {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.35);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+
+    .back-to-intro:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── QUESTION SCREEN ── */
+    .q-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .q-sidebar {
+      padding: 3rem 2.5rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 68px;
+      height: calc(100vh - 68px);
+    }
+
+    .q-sidebar-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 72px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.06);
+      line-height: 1;
+      margin-bottom: 2rem;
+    }
+
+    .section-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+    }
+
+    .section-step {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+      width: 24px;
+    }
+
+    .step-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .step-dot.done {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--navy);
+    }
+
+    .step-dot.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+
+    .step-line {
+      width: 1px;
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 4px;
+      min-height: 20px;
+    }
+
+    .section-step:last-child .step-line {
+      display: none;
+    }
+
+    .step-info {
+      padding-top: 2px;
+    }
+
+    .step-section-name {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.35);
+      transition: color 0.3s;
+    }
+
+    .step-section-name.active {
+      color: var(--gold);
+    }
+
+    .step-section-name.done {
+      color: var(--teal);
+    }
+
+    .step-qs {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.2);
+      margin-top: 2px;
+    }
+
+    .q-main {
+      padding: 4rem 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      max-width: 680px;
+    }
+
+    .q-progress-bar-wrap {
+      margin-bottom: 3rem;
+    }
+
+    .q-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 10px;
+    }
+
+    .q-progress-track {
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1px;
+    }
+
+    .q-progress-fill {
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      border-radius: 1px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .q-section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      padding: 4px 12px;
+      background: rgba(232, 164, 39, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(232, 164, 39, 0.25);
+      width: fit-content;
+    }
+
+    .q-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 2.5vw, 30px);
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--white);
+      margin-bottom: 2.5rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 3rem;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      width: 100%;
+      color: var(--white);
+    }
+
+    .option-btn:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(4px);
+    }
+
+    .option-btn.selected {
+      background: rgba(232, 164, 39, 0.1);
+      border-color: var(--gold);
+      transform: translateX(4px);
+    }
+
+    .option-key {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      flex-shrink: 0;
+      transition: all 0.2s;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .option-btn.selected .option-key {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+
+    .option-text {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.4;
+    }
+
+    .option-btn.selected .option-text {
+      font-weight: 400;
+    }
+
+    .q-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-continue {
+      padding: 15px 32px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-continue:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-continue:not(:disabled):hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 164, 39, 0.3);
+    }
+
+    .btn-back-q {
+      padding: 14px 20px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back-q:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: var(--white);
+    }
+
+    /* ── RESULT SCREEN ── */
+    .result-layout {
+      flex: 1;
+    }
+
+    .result-hero {
+      padding: 5rem 2.5rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .result-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(232, 164, 39, 0.12), transparent);
+    }
+
+    .result-eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 1.5rem;
+    }
+
+    .score-display {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-big {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(80px, 12vw, 130px);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .score-denom {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .tier-name-display {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .tier-description {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      max-width: 500px;
+      margin: 0 auto 2rem;
+    }
+
+    .tier-meter {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .tier-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .tier-fill {
+      height: 6px;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+    }
+
+    .tier-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tier-label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .result-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .result-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.3px;
+    }
+
+    .panel-body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .tier-ladder {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tier-rung {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .tier-rung.active {
+      background: rgba(232, 164, 39, 0.08);
+      border-color: rgba(232, 164, 39, 0.25);
+    }
+
+    .tier-rung-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tier-rung-name {
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .tier-rung-range {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .tier-rung-you {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(232, 164, 39, 0.2);
+      color: var(--gold);
+    }
+
+    .gaps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gap-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .gap-item:last-child {
+      border-bottom: none;
+    }
+
+    .gap-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #E24B4A;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .gap-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.45;
+    }
+
+    .no-gaps {
+      font-size: 13px;
+      color: rgba(0, 198, 167, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pillars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pillar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .pillar-row.weak {
+      border-color: rgba(193, 58, 46, 0.25);
+      background: rgba(193, 58, 46, 0.05);
+    }
+
+    .pillar-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .pillar-info {
+      flex: 1;
+    }
+
+    .pillar-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .pillar-desc {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .pillar-status {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .pillar-status.ok {
+      background: rgba(0, 198, 167, 0.15);
+      color: var(--teal);
+    }
+
+    .pillar-status.weak {
+      background: rgba(193, 58, 46, 0.15);
+      color: #E05050;
+    }
+
+    .scoreboard-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sb-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sb-row:last-child {
+      border-bottom: none;
+    }
+
+    .sb-rank {
+      width: 24px;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
+    }
+
+    .sb-rank.top {
+      color: var(--gold);
+    }
+
+    .sb-name {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .sb-name.mine {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .sb-chip {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .cta-panel {
+      background: linear-gradient(135deg, rgba(232, 164, 39, 0.15), rgba(232, 164, 39, 0.05));
+      border: 1px solid rgba(232, 164, 39, 0.25);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+
+    .cta-eyebrow {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .cta-sub {
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .cta-benefits {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-benefit-chip {
+      font-size: 12px;
+      padding: 5px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .btn-join {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 40px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-join:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(232, 164, 39, 0.35);
+    }
+
+    .btn-retake {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 1rem;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-retake:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* ── REGISTRATION SCREEN ── */
+    .reg-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .reg-left {
+      padding: 5rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .reg-right {
+      padding: 4rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .reg-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .reg-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .reg-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 1.25rem;
+    }
+
+    .reg-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .reg-body {
+      font-size: 15px;
+      line-height: 1.7;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 2.5rem;
+      max-width: 380px;
+    }
+
+    .reg-privacy {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+    }
+
+    .reg-privacy-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .reg-privacy-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.55;
+    }
+
+    .reg-trust {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 2rem;
+    }
+
+    .reg-trust-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.5;
+    }
+
+    .reg-trust-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .back-to-intro {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.35);
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 2rem;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .back-to-intro:hover {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .reg-form-wrap {
+      max-width: 480px;
+    }
+
+    .form-row {
+      margin-bottom: 0;
+    }
+
+    .form-row.two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      outline: none;
+      transition: all 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .form-input:focus {
+      border-color: var(--gold);
+      background: rgba(232, 164, 39, 0.06);
+      box-shadow: 0 0 0 3px rgba(232, 164, 39, 0.1);
+    }
+
+    .form-input.error {
+      border-color: #E05050;
+      background: rgba(224, 80, 80, 0.05);
+    }
+
+    .form-error-msg {
+      font-size: 11px;
+      color: #E05050;
+      display: none;
+    }
+
+    .form-error-msg.visible {
+      display: block;
+    }
+
+    .reg-privacy {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.3);
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 768px) {
+      .form-row.two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .reg-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .reg-form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.35rem;
+    }
+
+    .reg-form-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      outline: none;
+      transition: all 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field-input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .field-input:focus {
+      border-color: var(--gold);
+      background: rgba(232, 164, 39, 0.06);
+      box-shadow: 0 0 0 3px rgba(232, 164, 39, 0.1);
+    }
+
+    .field-input.error {
+      border-color: #E05050;
+      background: rgba(224, 80, 80, 0.05);
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: #E05050;
+      margin-top: 2px;
+      display: none;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    .btn-register {
+      width: 100%;
+      padding: 16px;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-register:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(232, 164, 39, 0.35);
+    }
+
+    .btn-register:active {
+      transform: translateY(0);
+    }
+
+    .btn-back-reg {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-back-reg:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .intro-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .intro-right {
+        display: none;
+      }
+
+      .intro-left {
+        padding: 3rem 1.75rem;
+      }
+
+      .reg-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .reg-left {
+        display: none;
+      }
+
+      .reg-right {
+        padding: 2rem 1.75rem;
+      }
+
+      .form-row.two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .q-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .q-sidebar {
+        display: none;
+      }
+
+      .q-main {
+        padding: 2rem 1.75rem;
+        max-width: 100%;
+      }
+
+      .result-body {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        padding: 1rem 1.5rem;
+      }
+
+      .cta-panel {
+        grid-column: 1;
+      }
+
+      .result-hero {
+        padding: 3rem 1.75rem;
+      }
+    }
+
+    /* ── JOIN MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #12213D;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--white);
+    }
+
+    .modal-eyebrow {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1.5rem;
+      line-height: 1.55;
+    }
+
+    .modal-summary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .modal-summary-label {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .modal-summary-val {
+      font-weight: 500;
+      color: var(--white);
+    }
+
+    .modal-note {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .btn-confirm {
+      width: 100%;
+      padding: 15px;
+      margin-top: 1.25rem;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-confirm:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-confirm:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .modal-success {
+      text-align: center;
+      display: none;
+    }
+
+    .modal-success.show {
+      display: block;
+    }
+
+    .modal-form-content.hide {
+      display: none;
+    }
+
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 198, 167, 0.15);
+      border: 1px solid rgba(0, 198, 167, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 1rem;
+    }
+
+    .success-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-sub {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+    }
+
+    /* ── LEADS PANEL ── */
+    .leads-panel {
+      display: none;
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 900;
+      width: 380px;
+      max-height: 70vh;
+      background: #0A1628;
+      border: 1px solid rgba(232, 164, 39, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .leads-panel.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .leads-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(232, 164, 39, 0.08);
+      border-bottom: 1px solid rgba(232, 164, 39, 0.15);
+    }
+
+    .leads-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .leads-count {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+
+    .leads-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .leads-body {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.5rem;
+    }
+
+    .lead-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      margin-bottom: 8px;
+    }
+
+    .lead-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .lead-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lead-score-chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .lead-school {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 4px;
+    }
+
+    .lead-meta {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .lead-meta span {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .leads-empty {
+      text-align: center;
+      padding: 2rem;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .leads-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-export {
+      flex: 1;
+      padding: 8px;
+      background: rgba(232, 164, 39, 0.1);
+      border: 1px solid rgba(232, 164, 39, 0.25);
+      border-radius: 6px;
+      color: var(--gold);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-export:hover {
+      background: rgba(232, 164, 39, 0.2);
+    }
+
+    .btn-clear-leads {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-clear-leads:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── LEADS TOGGLE BUTTON ── */
+    .leads-toggle {
+      display: none;
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 899;
+      padding: 10px 18px;
+      background: var(--navy);
+      border: 1px solid rgba(232, 164, 39, 0.4);
+      border-radius: 10px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .leads-toggle.visible {
+      display: flex;
+    }
+
+    .leads-toggle:hover {
+      background: rgba(232, 164, 39, 0.08);
+      border-color: var(--gold);
+    }
+
+    /* ── GLOBAL OPTIMISATION PANEL ── */
+    .optimization-panel {
+      background: rgba(0, 198, 167, 0.05);
+      border: 1px solid rgba(0, 198, 167, 0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+
+    .optimization-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(0, 198, 167, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .optimization-body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .opt-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .opt-item:last-child {
+      border-bottom: none;
+    }
+
+    .opt-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0, 198, 167, 0.12);
+      border: 1px solid rgba(0, 198, 167, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .opt-info {}
+
+    .opt-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .opt-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-layer">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="logo-mark">
+        <img src="logo.png" alt="Educare" class="logo-img">
+        <span class="logo-text"></span>
+      </div>
+      <span class="topbar-tag">South East Educators Conference 2026</span>
+    </header>
+
+    <!-- INTRO SCREEN -->
+    <div class="screen active" id="screen-intro">
+      <div class="intro-layout">
+        <div class="intro-left">
+          <div class="intro-eyebrow">Future-Ready School Test</div>
+          <h1 class="intro-headline">Is Your School<br><em>Future-Ready?</em></h1>
+          <p class="intro-body">Take the diagnostic test used to evaluate modern schools across Nigeria. In 2 minutes,
+            discover exactly where your school stands — and what it would take to lead.</p>
+          <div class="stats-row">
+            <div class="stat-item">
+              <span class="stat-num">10</span>
+              <span class="stat-label">Questions</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-num">2</span>
+              <span class="stat-label">Minutes</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-num">4</span>
+              <span class="stat-label">Tier scores</span>
+            </div>
+          </div>
+          <button class="btn-start"
+            onclick="show('screen-register'); setTimeout(()=>document.getElementById('f-firstname').focus(),300)">
+            Begin the test <span class="btn-start-arrow">→</span>
+          </button>
+        </div>
+        <div class="intro-right">
+          <div class="preview-card">
+            <div class="preview-title">What we measure</div>
+            <div class="preview-sections">
+              <div class="preview-sec">
+                <div class="preview-sec-icon">👁</div><span class="preview-sec-name">Parent visibility</span><span
+                  class="preview-sec-qs">2 Qs</span>
+              </div>
+              <div class="preview-sec">
+                <div class="preview-sec-icon">📋</div><span class="preview-sec-name">Teacher effectiveness</span><span
+                  class="preview-sec-qs">2 Qs</span>
+              </div>
+              <div class="preview-sec">
+                <div class="preview-sec-icon">⚙️</div><span class="preview-sec-name">School operations</span><span
+                  class="preview-sec-qs">2 Qs</span>
+              </div>
+              <div class="preview-sec">
+                <div class="preview-sec-icon">📊</div><span class="preview-sec-name">Student readiness</span><span
+                  class="preview-sec-qs">2 Qs</span>
+              </div>
+              <div class="preview-sec">
+                <div class="preview-sec-icon">🚀</div><span class="preview-sec-name">Future readiness</span><span
+                  class="preview-sec-qs">2 Qs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRATION SCREEN -->
+    <div class="screen" id="screen-register">
+      <div class="reg-layout">
+        <div class="reg-left">
+          <button class="back-to-intro" onclick="show('screen-intro')">← Back</button>
+          <div class="reg-eyebrow">Step 1 of 2 — Your details</div>
+          <h2 class="reg-headline">Tell us about<br>your <em>school</em></h2>
+          <p class="reg-body">We use this to personalise your results and send you a copy of your future-readiness
+            report.</p>
+          <div class="reg-trust">
+            <div class="reg-trust-item">
+              <div class="reg-trust-dot"></div>Your results are personalised to your school
+            </div>
+
+            <div class="reg-trust-item">
+              <div class="reg-trust-dot"></div>We send your benchmark report after the event
+            </div>
+            <div class="reg-trust-item">
+              <div class="reg-trust-dot"></div>No spam — only your results and the initiative details
+            </div>
+          </div>
+        </div>
+        <div class="reg-right">
+          <div class="reg-form-wrap">
+            <div class="reg-form-title">Your information</div>
+            <div class="reg-form-sub">All fields are required to proceed</div>
+
+            <div class="form-row two-col">
+              <div class="form-field">
+                <label class="form-label" for="f-firstname">First name</label>
+                <input class="form-input" id="f-firstname" type="text" placeholder="e.g. Amaka"
+                  autocomplete="given-name">
+                <span class="form-error-msg" id="err-firstname">Please enter your first name</span>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-lastname">Last name</label>
+                <input class="form-input" id="f-lastname" type="text" placeholder="e.g. Okonkwo"
+                  autocomplete="family-name">
+                <span class="form-error-msg" id="err-lastname">Please enter your last name</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label" for="f-school">School name</label>
+                <input class="form-input" id="f-school" type="text" placeholder="e.g. Achievers International Academy"
+                  autocomplete="organization">
+                <span class="form-error-msg" id="err-school">Please enter your school name</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label" for="f-email">Email address</label>
+                <input class="form-input" id="f-email" type="email" placeholder="e.g. principal@school.edu.ng"
+                  autocomplete="email">
+                <span class="form-error-msg" id="err-email">Please enter a valid email address</span>
+              </div>
+            </div>
+
+            <div class="form-row two-col">
+              <div class="form-field">
+                <label class="form-label" for="f-phone">Phone number</label>
+                <input class="form-input" id="f-phone" type="tel" placeholder="e.g. 08012345678" autocomplete="tel">
+                <span class="form-error-msg" id="err-phone">Please enter a valid phone number</span>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-designation">Designation</label>
+                <select class="form-input" id="f-designation">
+                  <option value="" disabled selected>Select your role</option>
+                  <option value="Proprietor / Owner">Proprietor / Owner</option>
+                  <option value="School Director">School Director</option>
+                  <option value="Principal">Principal</option>
+                  <option value="Vice Principal">Vice Principal</option>
+                  <option value="Head of Department">Head of Department</option>
+                  <option value="Class Teacher">Class Teacher</option>
+                  <option value="Admin Officer">Admin Officer</option>
+                  <option value="Bursar / Accountant">Bursar / Accountant</option>
+                  <option value="ICT Coordinator">ICT Coordinator</option>
+                  <option value="Other">Other</option>
+                </select>
+                <span class="form-error-msg" id="err-designation">Please select your designation</span>
+              </div>
+            </div>
+
+            <button class="btn-register" onclick="submitRegistration()">
+              Start the test <span style="font-size:18px">→</span>
+            </button>
+            <div class="reg-privacy">Your information is kept private and used only for the Future-Ready School
+              Initiative.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTION SCREEN -->
+    <div class="screen" id="screen-question">
+      <div class="q-layout">
+        <aside class="q-sidebar">
+          <div class="q-sidebar-num" id="sidebar-num">01</div>
+          <div class="section-steps" id="section-steps"></div>
+        </aside>
+        <main class="q-main">
+          <div class="q-progress-bar-wrap">
+            <div class="q-progress-label">
+              <span id="q-counter-label">Question 1 of 10</span>
+              <span id="q-pct-label">10%</span>
+            </div>
+            <div class="q-progress-track">
+              <div class="q-progress-fill" id="q-progress-fill" style="width:10%"></div>
+            </div>
+          </div>
+          <div class="q-section-tag" id="q-section-tag"></div>
+          <div class="q-text" id="q-text"></div>
+          <div class="options-grid" id="options-grid"></div>
+          <div class="q-actions">
+            <button class="btn-back-q" onclick="goBack()">← Back</button>
+            <button class="btn-continue" id="btn-continue" onclick="nextQ()" disabled>Continue →</button>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div class="screen" id="screen-result">
+      <div class="result-layout">
+        <div class="result-hero">
+          <div class="result-hero-bg"></div>
+          <div style="position:relative">
+            <div class="result-eyebrow" id="result-eyebrow">Your future-readiness score</div>
+            <div class="score-display">
+              <div class="score-big" id="score-big">0</div>
+              <div class="score-denom">/100</div>
+            </div>
+            <div class="tier-name-display" id="tier-name-display"></div>
+            <div class="tier-description" id="tier-description"></div>
+            <div class="tier-meter">
+              <div class="tier-track">
+                <div class="tier-fill" id="tier-fill" style="width:0%"></div>
+              </div>
+              <div class="tier-labels">
+                <span class="tier-label">At risk</span>
+                <span class="tier-label">Developing</span>
+                <span class="tier-label">Future-ready</span>
+                <span class="tier-label">Leader</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="result-body">
+          <div class="result-col">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-icon" style="background:rgba(232,164,39,0.15)">🏆</div>
+                <div class="panel-title">School tier ranking</div>
+              </div>
+              <div class="panel-body">
+                <div class="tier-ladder" id="tier-ladder"></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-icon" style="background:rgba(193,58,46,0.15)">⚠️</div>
+                <div class="panel-title">Where your school needs to improve</div>
+              </div>
+              <div class="panel-body">
+                <div class="gaps-list" id="gaps-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="result-col">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-icon" style="background:rgba(0,198,167,0.15)">✦</div>
+                <div class="panel-title">How Educare closes the gaps</div>
+              </div>
+              <div class="panel-body">
+                <div class="pillars-list" id="pillars-list"></div>
+              </div>
+            </div>
+            <div class="optimization-panel" id="optimization-panel" style="display:none">
+              <div class="optimization-header">
+                <div class="panel-icon"
+                  style="background:rgba(0,198,167,0.15);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">
+                  🌍</div>
+                <div class="panel-title" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.7)">Pathways to
+                  global excellence</div>
+              </div>
+              <div class="optimization-body">
+                <div class="opt-item">
+                  <div class="opt-icon">📊</div>
+                  <div class="opt-info">
+                    <div class="opt-title">Benchmark against global schools</div>
+                    <div class="opt-desc">Measure your performance against international standards. See exactly where
+                      you stand globally, not just locally.</div>
+                  </div>
+                </div>
+                <div class="opt-item">
+                  <div class="opt-icon">🤖</div>
+                  <div class="opt-info">
+                    <div class="opt-title">AI-powered learning personalisation</div>
+                    <div class="opt-desc">World-class schools personalise learning for every student. Educare puts this
+                      capability in your hands.</div>
+                  </div>
+                </div>
+                <div class="opt-item">
+                  <div class="opt-icon">🏅</div>
+                  <div class="opt-info">
+                    <div class="opt-title">International accreditation readiness</div>
+                    <div class="opt-desc">Systems aligned with Cambridge, IB, and British Council frameworks for schools
+                      aiming at global recognition.</div>
+                  </div>
+                </div>
+                <div class="opt-item">
+                  <div class="opt-icon">📣</div>
+                  <div class="opt-info">
+                    <div class="opt-title">Digital reputation at scale</div>
+                    <div class="opt-desc">Elite schools attract elite families. Educare builds the digital presence and
+                      parent trust systems that make that happen.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="cta-panel">
+            <div class="cta-eyebrow" id="cta-eyebrow-label">Limited spaces available</div>
+            <div class="cta-headline" id="cta-headline-label">Join the Founding Cohort of Future-Ready Schools</div>
+            <div class="cta-sub" id="cta-sub-label">South-East 2026 · Priority onboarding · Teacher training · Readiness
+              benchmarking · Public recognition</div>
+            <div class="cta-benefits">
+              <span class="cta-benefit-chip">Priority onboarding</span>
+              <span class="cta-benefit-chip">Leadership session</span>
+              <span class="cta-benefit-chip">Teacher training</span>
+              <span class="cta-benefit-chip">Parent engagement launch</span>
+              <span class="cta-benefit-chip">Benchmark report</span>
+              <span class="cta-benefit-chip">Public recognition</span>
+            </div>
+            <button class="btn-join" onclick="openJoinModal()">Join the initiative →</button><br>
+            <button class="btn-retake" onclick="retake()">↺ Retake the test</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOIN MODAL -->
+    <div class="modal-overlay" id="join-modal">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeJoinModal()">✕</button>
+        <div class="modal-form-content" id="modal-form-content">
+          <div class="modal-eyebrow">Founding Cohort · South-East 2026</div>
+          <div class="modal-title">Confirm your place</div>
+          <div class="modal-sub">Review your details below. By joining, your school will be onboarded as a priority
+            member of the Future-Ready School Initiative.</div>
+          <div class="modal-summary" id="modal-summary"></div>
+          <div class="modal-note">🔒 Your details are secure and will only be used by the Educare team to contact you
+            about onboarding.</div>
+          <button class="btn-confirm" id="btn-confirm" onclick="confirmJoin()">Confirm and join →</button>
+        </div>
+        <div class="modal-success" id="modal-success">
+          <div class="success-icon">✓</div>
+          <div class="success-title">You're in, <span id="success-name"></span>!</div>
+          <div class="success-sub">An Educare representative will contact you at <strong id="success-email"></strong>
+            within 24 hours to begin your onboarding. Welcome to the Future-Ready School Initiative.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS TRACKER PANEL -->
+    <div class="leads-panel" id="leads-panel">
+      <div class="leads-header">
+        <div class="leads-title">
+          Leads captured
+          <span class="leads-count" id="leads-count">0</span>
+        </div>
+        <button class="leads-close" onclick="toggleLeadsPanel()">✕</button>
+      </div>
+      <div class="leads-body" id="leads-body">
+        <div class="leads-empty" id="leads-empty">No leads yet. When someone joins, they appear here.</div>
+      </div>
+      <div class="leads-footer">
+        <button class="btn-export" onclick="exportLeads()">⬇ Export CSV</button>
+        <button class="btn-clear-leads" onclick="clearLeads()">Clear</button>
+      </div>
+    </div>
+
+    <button class="leads-toggle" id="leads-toggle" onclick="toggleLeadsPanel()">
+      <span>📋</span> <span id="leads-toggle-label">Leads (0)</span>
+    </button>
+
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { section: "Parent visibility", icon: "👁", q: "Can parents in your school see what their child learned today?", opts: ["Yes, daily in real time", "Sometimes", "Only during report cards", "No"], pillar: 0 },
+      { section: "Parent visibility", icon: "👁", q: "If a student misses homework today, can the parent know immediately?", opts: ["Yes", "Sometimes", "Only when it becomes serious", "No"], pillar: 0 },
+      { section: "Teacher effectiveness", icon: "📋", q: "Can school leadership clearly track teacher performance and impact?", opts: ["Yes, with clear data", "Partially", "Mostly manual observation", "Not really"], pillar: 1 },
+      { section: "Teacher effectiveness", icon: "📋", q: "Do teachers in your school spend too much time on paperwork and administration?", opts: ["No, systems handle most tasks", "Sometimes", "Often", "All the time"], pillar: 2 },
+      { section: "School operations", icon: "⚙️", q: "Are your school's attendance, finance, communication, and reports integrated into one system?", opts: ["Yes", "Partially", "Mostly manual", "Completely separate"], pillar: 2 },
+      { section: "School operations", icon: "⚙️", q: "If the school owner wants to know what is happening in the school today, how easy is it?", opts: ["Instantly visible", "Can be checked with effort", "Requires multiple reports", "Very difficult"], pillar: 4 },
+      { section: "Student readiness", icon: "📊", q: "Can your school measure student exam readiness before WAEC or JAMB?", opts: ["Yes with real data", "Partially", "Teachers estimate", "No"], pillar: 3 },
+      { section: "Student readiness", icon: "📊", q: "Do students practice structured exam simulations regularly?", opts: ["Yes", "Sometimes", "Rarely", "Never"], pillar: 3 },
+      { section: "Future readiness", icon: "🚀", q: "If parents compare your school to others online, what do they see?", opts: ["Strong digital experience", "Some digital systems", "Mostly traditional", "No digital visibility"], pillar: 1 },
+      { section: "Future readiness", icon: "🚀", q: "If your school doubled in size tomorrow, would your systems still work?", opts: ["Yes easily", "Possibly", "It would be difficult", "It would collapse"], pillar: 2 }
+    ];
+
+    const TIERS = [
+      { name: "Category leader", range: "90 – 100", color: "#00C6A7", desc: "Your school is operating like a modern, future-ready institution. You are setting the standard.", pct: 97 },
+      { name: "Future-ready school", range: "70 – 89", color: "#5BA8E5", desc: "Your school is ahead of many others but still has areas to strengthen and consolidate.", pct: 80 },
+      { name: "Developing school", range: "50 – 69", color: "#E8A427", desc: "Your school is doing well but risks falling behind modern education systems if gaps are not addressed.", pct: 60 },
+      { name: "At risk", range: "Below 50", color: "#E05050", desc: "Your school is operating with systems that may not survive the next generation of education.", pct: 30 }
+    ];
+
+    const PILLARS = [
+      { title: "Visible learning", desc: "Parents see learning progress in real time.", icon: "👁" },
+      { title: "Connected parents", desc: "Communication becomes effortless.", icon: "🔗" },
+      { title: "Smart operations", desc: "Attendance, finance, reports in one system.", icon: "⚡" },
+      { title: "Student readiness", desc: "Students practice real exam environments.", icon: "📊" },
+      { title: "School intelligence", desc: "Leaders see what is happening instantly.", icon: "🎯" }
+    ];
+
+    const GAP_DESC = [
+      "Parents cannot see their child's learning progress daily",
+      "Homework or absence alerts are not reaching parents in real time",
+      "Teacher performance is not tracked with measurable data",
+      "Staff are spending too much time on admin instead of teaching",
+      "School systems are fragmented — no single source of truth",
+      "School owners lack instant visibility into daily operations",
+      "Student exam readiness cannot be measured before WAEC or JAMB",
+      "Students are not practising in structured exam environments",
+      "The school's digital presence is weak when parents compare online",
+      "Current systems would not survive rapid school growth"
+    ];
+
+    const SECTIONS = ["Parent visibility", "Teacher effectiveness", "School operations", "Student readiness", "Future readiness"];
+    const PTS = [10, 7, 4, 1];
+    const KEYS = ["A", "B", "C", "D"];
+
+    let current = 0, answers = [];
+    let userData = { firstName: '', lastName: '', school: '', email: '', phone: '', designation: '' };
+
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.animation = 'none'; });
+      const el = document.getElementById(id);
+      el.classList.add('active');
+      void el.offsetWidth;
+      el.style.animation = '';
+    }
+
+    async function submitRegistration() {
+      const fields = [
+        { id: 'f-firstname', err: 'err-firstname', key: 'firstName', validate: v => v.trim().length >= 2 },
+        { id: 'f-lastname', err: 'err-lastname', key: 'lastName', validate: v => v.trim().length >= 2 },
+        { id: 'f-school', err: 'err-school', key: 'school', validate: v => v.trim().length >= 3 },
+        { id: 'f-email', err: 'err-email', key: 'email', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+        { id: 'f-phone', err: 'err-phone', key: 'phone', validate: v => /^[\d\s\+\-\(\)]{7,15}$/.test(v.trim()) },
+        { id: 'f-designation', err: 'err-designation', key: 'designation', validate: v => v.trim().length > 0 },
+      ];
+      let valid = true;
+      fields.forEach(f => {
+        const input = document.getElementById(f.id);
+        const errEl = document.getElementById(f.err);
+        const ok = f.validate(input.value);
+        input.classList.toggle('error', !ok);
+        errEl.classList.toggle('visible', !ok);
+        if (ok) userData[f.key] = input.value.trim();
+        else valid = false;
+      });
+      if (!valid) return;
+
+      const btn = document.querySelector('#screen-register .btn-register');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('save_registration.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            school: userData.school,
+            email: userData.email,
+            phone: userData.phone,
+            designation: userData.designation,
+          }),
+        });
+        const text = await res.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch (_) { /* not JSON */ }
+        const looksLikeHtml = /^\s*</.test(text);
+        const looksLikePhpSource = /^\s*<\?php/.test(text);
+        const noPhp = res.status === 404 || res.status === 501 || looksLikeHtml || looksLikePhpSource;
+
+        if (res.ok && data.ok) {
+          startTest();
+          return;
+        }
+
+        if (noPhp) {
+          alert(
+            'Registration requires PHP. A static preview (e.g. Live Server) cannot run save_registration.php.\n\n' +
+            'From this folder run:\n  php -S 127.0.0.1:8080\n' +
+            'Then open http://127.0.0.1:8080 in your browser.'
+          );
+          return;
+        }
+
+        alert(data.error || 'Could not save your registration. Please try again.');
+      } catch (e) {
+        alert(
+          'Could not reach save_registration.php. Serve this folder with PHP, e.g.:\n  php -S 127.0.0.1:8080\n' +
+          'Then open http://127.0.0.1:8080'
+        );
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function startTest() { current = 0; answers = []; show('screen-question'); renderQ(); }
+
+    function renderQ() {
+      const q = QUESTIONS[current];
+      const pct = Math.round(((current + 1) / QUESTIONS.length) * 100);
+      document.getElementById('sidebar-num').textContent = String(current + 1).padStart(2, '0');
+      document.getElementById('q-counter-label').textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+      document.getElementById('q-pct-label').textContent = pct + '%';
+      document.getElementById('q-progress-fill').style.width = pct + '%';
+      document.getElementById('q-section-tag').textContent = q.section;
+      document.getElementById('q-text').textContent = q.q;
+
+      const sel = answers[current] ?? -1;
+      document.getElementById('options-grid').innerHTML = q.opts.map((o, i) =>
+        `<button class="option-btn${sel === i ? ' selected' : ''}" onclick="selectOpt(${i})">
+      <span class="option-key">${KEYS[i]}</span>
+      <span class="option-text">${o}</span>
+    </button>`
+      ).join('');
+      document.getElementById('btn-continue').disabled = sel === -1;
+
+      // Sidebar steps
+      const sectionQMap = {};
+      QUESTIONS.forEach((q, i) => {
+        if (!sectionQMap[q.section]) sectionQMap[q.section] = [];
+        sectionQMap[q.section].push(i);
+      });
+      document.getElementById('section-steps').innerHTML = SECTIONS.map((sec, si) => {
+        const qs = sectionQMap[sec] || [];
+        const allDone = qs.every(i => answers[i] !== undefined);
+        const isActive = qs.includes(current);
+        const dotClass = allDone ? 'done' : isActive ? 'active' : '';
+        const nameClass = allDone ? 'done' : isActive ? 'active' : '';
+        const dotContent = allDone ? '✓' : si + 1;
+        return `<div class="section-step">
+      <div class="step-indicator">
+        <div class="step-dot ${dotClass}">${dotContent}</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-info">
+        <div class="step-section-name ${nameClass}">${sec}</div>
+        <div class="step-qs">2 questions</div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function selectOpt(i) {
+      answers[current] = i;
+      document.querySelectorAll('.option-btn').forEach((b, idx) => b.classList.toggle('selected', idx === i));
+      document.getElementById('btn-continue').disabled = false;
+    }
+
+    function goBack() {
+      if (current > 0) { current--; renderQ(); } else { show('screen-register'); }
+    }
+
+    function nextQ() {
+      if (answers[current] === undefined) return;
+      if (current < QUESTIONS.length - 1) { current++; renderQ(); }
+      else showResult();
+    }
+
+    function calcScore() { return answers.reduce((s, a) => s + PTS[a], 0); }
+
+    function getTierIdx(score) {
+      if (score >= 90) return 0;
+      if (score >= 70) return 1;
+      if (score >= 50) return 2;
+      return 3;
+    }
+
+    function showResult() {
+      const score = calcScore();
+      const ti = getTierIdx(score);
+      const tier = TIERS[ti];
+
+      // Personalise the hero with user's name & school
+      document.getElementById('result-eyebrow').textContent =
+        `${userData.firstName} ${userData.lastName} · ${userData.designation ? userData.designation + ', ' : ''}${userData.school}`;
+
+      document.getElementById('score-big').textContent = score;
+      document.getElementById('tier-name-display').textContent = tier.name;
+      document.getElementById('tier-name-display').style.color = tier.color;
+      document.getElementById('tier-description').textContent = tier.desc;
+
+      const fill = document.getElementById('tier-fill');
+      fill.style.background = `linear-gradient(90deg, ${tier.color}88, ${tier.color})`;
+      setTimeout(() => { fill.style.width = score + '%'; }, 100);
+
+      document.getElementById('tier-ladder').innerHTML = TIERS.map((t, i) =>
+        `<div class="tier-rung${i === ti ? ' active' : ''}">
+      <div class="tier-rung-dot" style="background:${t.color}"></div>
+      <div class="tier-rung-name" style="color:${i === ti ? t.color : 'rgba(255,255,255,0.6)'}">${t.name}</div>
+      <div class="tier-rung-range">${t.range}</div>
+      ${i === ti ? '<span class="tier-rung-you">YOU</span>' : ''}
+    </div>`
+      ).join('');
+
+      const gaps = answers.map((a, i) => ({ i, pts: PTS[a], pillar: QUESTIONS[i].pillar })).filter(x => x.pts < 7);
+      const gl = document.getElementById('gaps-list');
+      gl.innerHTML = gaps.length === 0
+        ? '<div class="no-gaps">✓ No critical gaps. Your school is operating at a high level.</div>'
+        : gaps.map(g => `<div class="gap-item"><div class="gap-dot"></div><div class="gap-text">${GAP_DESC[g.i]}</div></div>`).join('');
+
+      const weakPillars = new Set(gaps.map(g => g.pillar));
+      document.getElementById('pillars-list').innerHTML = PILLARS.map((p, i) => {
+        const isWeak = weakPillars.has(i);
+        return `<div class="pillar-row${isWeak ? ' weak' : ''}">
+      <div class="pillar-icon">${p.icon}</div>
+      <div class="pillar-info">
+        <div class="pillar-name">${p.title}</div>
+        <div class="pillar-desc">${p.desc}</div>
+      </div>
+      <div class="pillar-status ${isWeak ? 'weak' : 'ok'}">${isWeak ? 'GAP' : 'GOOD'}</div>
+    </div>`;
+      }).join('');
+
+
+
+      // ── CTA personalisation based on score ──────────────────────────────────
+      const ctaEyebrow = document.getElementById('cta-eyebrow-label');
+      const ctaHeadline = document.getElementById('cta-headline-label');
+      const ctaSub = document.getElementById('cta-sub-label');
+      if (score >= 90) {
+        ctaEyebrow.textContent = 'You are ahead — stay ahead';
+        ctaHeadline.textContent = 'Join the initiative and lead by global standards';
+        ctaSub.textContent = "Your school scores well. But the world's best schools do not stop — they set benchmarks. Educare will help you hit international standards, benchmark against global peers, and attract the families that recognise the difference.";
+      } else if (score >= 70) {
+        ctaEyebrow.textContent = 'Almost future-ready';
+        ctaHeadline.textContent = 'Close the remaining gaps with Educare';
+        ctaSub.textContent = 'Your school is ahead of most — but a few critical gaps still exist. Joining the founding cohort gets you a tailored roadmap to become a full category leader.';
+      } else {
+        ctaEyebrow.textContent = 'Limited spaces available';
+        ctaHeadline.textContent = 'Join the Founding Cohort of Future-Ready Schools';
+        ctaSub.textContent = 'South-East 2026 · Priority onboarding · Teacher training · Readiness benchmarking · Public recognition';
+      }
+
+      // ── Show optimization panel for 90+ scorers ─────────────────────────────
+      const optPanel = document.getElementById('optimization-panel');
+      if (optPanel) {
+        if (score >= 90) {
+          optPanel.style.display = 'block';
+        } else {
+          optPanel.style.display = 'none';
+        }
+      }
+
+      show('screen-result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── LEADS SYSTEM ────────────────────────────────────────────────────────
+    let leads = JSON.parse(localStorage.getItem('educare_leads') || '[]');
+
+    function saveLead(lead) {
+      leads.push(lead);
+      localStorage.setItem('educare_leads', JSON.stringify(leads));
+      renderLeads();
+      updateLeadsToggle();
+    }
+
+    function renderLeads() {
+      const body = document.getElementById('leads-body');
+      const empty = document.getElementById('leads-empty');
+      const count = document.getElementById('leads-count');
+      count.textContent = leads.length;
+      if (leads.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      body.innerHTML = leads.map((l, i) => {
+        const tc = l.score >= 90 ? '#00C6A7' : l.score >= 70 ? '#5BA8E5' : l.score >= 50 ? '#E8A427' : '#E05050';
+        const tb = l.score >= 90 ? 'rgba(0,198,167,0.12)' : l.score >= 70 ? 'rgba(91,168,229,0.12)' : l.score >= 50 ? 'rgba(232,164,39,0.12)' : 'rgba(224,80,80,0.12)';
+        const tier = l.score >= 90 ? 'Category leader' : l.score >= 70 ? 'Future-ready' : l.score >= 50 ? 'Developing' : 'At risk';
+        return `<div class="lead-card">
+      <div class="lead-card-top">
+        <div class="lead-name">${l.firstName} ${l.lastName}</div>
+        <div class="lead-score-chip" style="background:${tb};color:${tc}">${l.score}/100</div>
+      </div>
+      <div class="lead-school">${l.designation} · ${l.school}</div>
+      <div class="lead-meta">
+        <span>✉ ${l.email}</span>
+        <span>📞 ${l.phone}</span>
+        <span>🏷 ${tier}</span>
+        <span>🕐 ${l.time}</span>
+      </div>
+    </div>`;
+      }).join('') + '<div id="leads-empty" style="display:none"></div>';
+    }
+
+    function updateLeadsToggle() {
+      const toggle = document.getElementById('leads-toggle');
+      const label = document.getElementById('leads-toggle-label');
+      toggle.classList.add('visible');
+      label.textContent = `Leads (${leads.length})`;
+    }
+
+    function toggleLeadsPanel() {
+      const panel = document.getElementById('leads-panel');
+      const toggle = document.getElementById('leads-toggle');
+      panel.classList.toggle('open');
+      toggle.style.display = panel.classList.contains('open') ? 'none' : 'flex';
+    }
+
+    function exportLeads() {
+      if (leads.length === 0) return;
+      const headers = ['First Name', 'Last Name', 'Designation', 'School', 'Email', 'Phone', 'Score', 'Tier', 'Time'];
+      const rows = leads.map(l => {
+        const tier = l.score >= 90 ? 'Category Leader' : l.score >= 70 ? 'Future-Ready School' : l.score >= 50 ? 'Developing School' : 'At Risk';
+        return [l.firstName, l.lastName, l.designation, l.school, l.email, l.phone, l.score, tier, l.time].join(',');
+      });
+      const csv = [headers.join(','), ...rows].join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'educare_leads_' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.click();
+    }
+
+    function clearLeads() {
+      if (!confirm('Clear all leads? This cannot be undone.')) return;
+      leads = [];
+      localStorage.removeItem('educare_leads');
+      renderLeads();
+      document.getElementById('leads-count').textContent = '0';
+      document.getElementById('leads-toggle-label').textContent = 'Leads (0)';
+    }
+
+    // ── MODAL ─────────────────────────────────────────────────────────────────
+    function openJoinModal() {
+      const score = calcScore();
+      const tier = score >= 90 ? 'Category Leader' : score >= 70 ? 'Future-Ready School' : score >= 50 ? 'Developing School' : 'At Risk';
+      document.getElementById('modal-summary').innerHTML = `
+    <div class="modal-summary-row"><span class="modal-summary-label">Name</span><span class="modal-summary-val">${userData.firstName} ${userData.lastName}</span></div>
+    <div class="modal-summary-row"><span class="modal-summary-label">Designation</span><span class="modal-summary-val">${userData.designation}</span></div>
+    <div class="modal-summary-row"><span class="modal-summary-label">School</span><span class="modal-summary-val">${userData.school}</span></div>
+    <div class="modal-summary-row"><span class="modal-summary-label">Email</span><span class="modal-summary-val">${userData.email}</span></div>
+    <div class="modal-summary-row"><span class="modal-summary-label">Phone</span><span class="modal-summary-val">${userData.phone}</span></div>
+    <div class="modal-summary-row"><span class="modal-summary-label">Score</span><span class="modal-summary-val">${score}/100 · ${tier}</span></div>`;
+      document.getElementById('modal-form-content').classList.remove('hide');
+      document.getElementById('modal-success').classList.remove('show');
+      document.getElementById('join-modal').classList.add('open');
+    }
+
+    function closeJoinModal() {
+      document.getElementById('join-modal').classList.remove('open');
+    }
+
+    async function confirmJoin() {
+      const btn = document.getElementById('btn-confirm');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+      const score = calcScore();
+      const now = new Date();
+      const timeStr = now.toLocaleString('en-NG', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      try {
+        const res = await fetch('save_cohort_membership.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            designation: userData.designation,
+            school: userData.school,
+            email: userData.email,
+            phone: userData.phone,
+            score,
+          }),
+        });
+        const text = await res.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch (_) { /* not JSON */ }
+        if (!res.ok || !data.ok) {
+          alert(data.error || 'Could not save your signup. Serve this app with PHP and try again.');
+          btn.disabled = false;
+          btn.textContent = 'Confirm and join →';
+          return;
+        }
+        const lead = {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          designation: userData.designation,
+          school: userData.school,
+          email: userData.email,
+          phone: userData.phone,
+          score,
+          time: timeStr
+        };
+        saveLead(lead);
+        document.getElementById('modal-form-content').classList.add('hide');
+        document.getElementById('modal-success').classList.add('show');
+        document.getElementById('success-name').textContent = userData.firstName;
+        document.getElementById('success-email').textContent = userData.email;
+      } catch (e) {
+        alert('Could not reach the server. Check that PHP is running.');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Confirm and join →';
+    }
+
+    function joinNow() { openJoinModal(); }
+    function retake() {
+      current = 0; answers = [];
+      show('screen-question'); renderQ();
+    }
+
+    // Initialise on load
+    renderLeads();
+    updateLeadsToggle();
+
+    // Enter key submits registration form
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('screen-register').classList.contains('active') && e.key === 'Enter') {
+        submitRegistration();
+      }
+      if (document.getElementById('screen-question').classList.contains('active')) {
+        if (['a', 'b', 'c', 'd'].includes(e.key.toLowerCase())) {
+          const i = ['a', 'b', 'c', 'd'].indexOf(e.key.toLowerCase());
+          if (i < QUESTIONS[current].opts.length) selectOpt(i);
+        }
+        if (e.key === 'Enter' && !document.getElementById('btn-continue').disabled) nextQ();
+        if (e.key === 'ArrowLeft') goBack();
+      }
+    });
+  </script>
+</body>
+
+</html>
