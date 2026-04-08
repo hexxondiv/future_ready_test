@@ -893,7 +893,7 @@ $cohortCount = count($cohortRows);
         <div class="dash-actions">
           <span class="badge"><?= h((string)$count) ?> reg</span>
           <span class="badge" style="border-color:rgba(0,198,167,0.25);background:rgba(0,198,167,0.1);color:#9ee8d9"><?= h((string)$cohortCount) ?> cohort</span>
-          <a class="btn btn-ghost" href="../index.html">← Public site</a>
+          <a class="btn btn-ghost" href="../index.html" target="_blank" rel="noopener noreferrer">← Public site</a>
           <form method="post" action="index.php" style="display:inline">
             <input type="hidden" name="action" value="logout">
             <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
