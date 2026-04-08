@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = (string)($_POST['csrf'] ?? '');
 
     if (!hash_equals($_SESSION['csrf'], $csrf)) {
-        if ($loggedIn && ($action === 'delete_registration' || $action === 'delete_cohort')) {
+        if ($loggedIn && ($action === 'delete_registration' || $action === 'delete_cohort' || $action === 'export_registrations' || $action === 'export_cohort')) {
             header('Location: index.php');
             exit;
         }
@@ -83,6 +83,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         header('Location: index.php?tab=cohort');
         exit;
+    } elseif ($loggedIn && ($action === 'export_registrations' || $action === 'export_cohort')) {
+        try {
+            $pdo = futre_db();
+            if ($action === 'export_registrations') {
+                $stmt = $pdo->query(
+                    'SELECT id, created_at, first_name, last_name, designation, school, email, phone, score, tier_label
+                     FROM registrations ORDER BY id DESC'
+                );
+                $filename = 'registrations_' . gmdate('Y-m-d') . '.csv';
+                $headers = ['ID', 'Registered At', 'First Name', 'Last Name', 'Designation', 'School', 'Email', 'Phone', 'Score', 'Tier'];
+            } else {
+                $stmt = $pdo->query(
+                    'SELECT id, created_at, first_name, last_name, designation, school, email, phone, score, tier_label
+                     FROM cohort_membership ORDER BY id DESC'
+                );
+                $filename = 'cohort_memberships_' . gmdate('Y-m-d') . '.csv';
+                $headers = ['ID', 'Joined At', 'First Name', 'Last Name', 'Designation', 'School', 'Email', 'Phone', 'Score', 'Tier'];
+            }
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('X-Content-Type-Options: nosniff');
+
+            $out = fopen('php://output', 'w');
+            if ($out === false) {
+                throw new RuntimeException('Could not open output');
+            }
+            fputcsv($out, $headers);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                fputcsv($out, [
+                    $row['id'] ?? '',
+                    $row['created_at'] ?? '',
+                    $row['first_name'] ?? '',
+                    $row['last_name'] ?? '',
+                    $row['designation'] ?? '',
+                    $row['school'] ?? '',
+                    $row['email'] ?? '',
+                    $row['phone'] ?? '',
+                    $row['score'] ?? '',
+                    $row['tier_label'] ?? '',
+                ]);
+            }
+            fclose($out);
+            exit;
+        } catch (Throwable $e) {
+            header('Location: index.php');
+            exit;
+        }
     }
 }
 
@@ -93,7 +141,7 @@ if ($loggedIn) {
     try {
         $pdo = futre_db();
         $stmt = $pdo->query(
-            'SELECT id, first_name, last_name, school, email, phone, designation, created_at
+            'SELECT id, first_name, last_name, school, email, phone, designation, score, tier_label, created_at
              FROM registrations ORDER BY id DESC'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -356,6 +404,20 @@ $cohortCount = count($cohortRows);
       outline: none;
       border-color: rgba(232,164,39,0.35);
     }
+    .filter-select {
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(18,33,61,0.6);
+      color: var(--white);
+      font: inherit;
+      min-width: 190px;
+    }
+    .filter-select:focus {
+      outline: none;
+      border-color: rgba(232,164,39,0.35);
+      box-shadow: 0 0 0 3px rgba(232,164,39,0.12);
+    }
     .table-card {
       background: var(--glass);
       backdrop-filter: blur(12px);
@@ -589,8 +651,21 @@ $cohortCount = count($cohortRows);
               <div class="toolbar">
                 <div class="search-wrap">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                  <input type="search" id="reg-search" placeholder="Search name, school, email, phone…" aria-label="Filter registrations">
+                  <input type="search" id="reg-search" placeholder="Search name, school, email, phone, tier…" aria-label="Filter registrations">
                 </div>
+                <select class="filter-select" id="reg-tier" aria-label="Filter registrations by tier">
+                  <option value="">All tiers</option>
+                  <option value="category leader">Category Leader</option>
+                  <option value="future-ready school">Future-Ready School</option>
+                  <option value="developing school">Developing School</option>
+                  <option value="at risk">At Risk</option>
+                  <option value="__unscored__">Unscored</option>
+                </select>
+                <form method="post" action="index.php" style="display:inline">
+                  <input type="hidden" name="action" value="export_registrations">
+                  <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+                  <button type="submit" class="btn btn-ghost">Export CSV</button>
+                </form>
               </div>
               <div class="table-card">
                 <div class="table-scroll">
@@ -604,6 +679,8 @@ $cohortCount = count($cohortRows);
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Role</th>
+                        <th>Score</th>
+                        <th>Tier</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -611,9 +688,9 @@ $cohortCount = count($cohortRows);
                       <?php foreach ($rows as $r): ?>
                         <?php
                         $name = $r['first_name'] . ' ' . $r['last_name'];
-                        $hay = strtolower($name . ' ' . $r['school'] . ' ' . $r['email'] . ' ' . $r['phone'] . ' ' . $r['designation']);
+                        $hay = strtolower($name . ' ' . $r['school'] . ' ' . $r['email'] . ' ' . $r['phone'] . ' ' . $r['designation'] . ' ' . (string)($r['tier_label'] ?? '') . ' ' . (string)($r['score'] ?? ''));
                         ?>
-                        <tr data-search="<?= h($hay) ?>">
+                        <tr data-search="<?= h($hay) ?>" data-tier="<?= h(strtolower((string)($r['tier_label'] ?? ''))) ?>">
                           <td class="cell-muted">#<?= h((string)$r['id']) ?></td>
                           <td class="cell-muted"><?= h($r['created_at']) ?></td>
                           <td class="cell-strong"><?= h($name) ?></td>
@@ -621,6 +698,8 @@ $cohortCount = count($cohortRows);
                           <td class="cell-email"><a href="mailto:<?= h($r['email']) ?>"><?= h($r['email']) ?></a></td>
                           <td><a href="tel:<?= h(preg_replace('/\s+/', '', $r['phone'])) ?>" style="color:inherit;text-decoration:none"><?= h($r['phone']) ?></a></td>
                           <td><?= h($r['designation']) ?></td>
+                          <td><?= $r['score'] === null ? '<span class="cell-muted">—</span>' : '<span class="score-pill">' . h((string)(int)$r['score']) . '/100</span>' ?></td>
+                          <td><?= $r['tier_label'] === null ? '<span class="cell-muted">—</span>' : h((string)$r['tier_label']) ?></td>
                           <td class="cell-actions">
                             <form class="row-delete-form" method="post" action="index.php" data-confirm="<?= h('Delete this registration for ' . $name . '? This cannot be undone.') ?>" onsubmit="return confirm(this.dataset.confirm);">
                               <input type="hidden" name="action" value="delete_registration">
@@ -653,6 +732,18 @@ $cohortCount = count($cohortRows);
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                   <input type="search" id="cohort-search" placeholder="Search name, school, email, tier…" aria-label="Filter cohort sign-ups">
                 </div>
+                <select class="filter-select" id="cohort-tier" aria-label="Filter cohort memberships by tier">
+                  <option value="">All tiers</option>
+                  <option value="category leader">Category Leader</option>
+                  <option value="future-ready school">Future-Ready School</option>
+                  <option value="developing school">Developing School</option>
+                  <option value="at risk">At Risk</option>
+                </select>
+                <form method="post" action="index.php" style="display:inline">
+                  <input type="hidden" name="action" value="export_cohort">
+                  <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+                  <button type="submit" class="btn btn-ghost">Export CSV</button>
+                </form>
               </div>
               <div class="table-card">
                 <div class="table-scroll">
@@ -677,7 +768,7 @@ $cohortCount = count($cohortRows);
                         $name = $r['first_name'] . ' ' . $r['last_name'];
                         $hay = strtolower($name . ' ' . $r['school'] . ' ' . $r['email'] . ' ' . $r['phone'] . ' ' . $r['designation'] . ' ' . $r['tier_label'] . ' ' . (string)$r['score']);
                         ?>
-                        <tr data-search="<?= h($hay) ?>">
+                        <tr data-search="<?= h($hay) ?>" data-tier="<?= h(strtolower((string)$r['tier_label'])) ?>">
                           <td class="cell-muted">#<?= h((string)$r['id']) ?></td>
                           <td class="cell-muted"><?= h($r['created_at']) ?></td>
                           <td class="cell-strong"><?= h($name) ?></td>
@@ -714,13 +805,26 @@ $cohortCount = count($cohortRows);
         var input = document.getElementById(inputId);
         var tbody = document.getElementById(tbodyId);
         if (!input || !tbody) return;
-        input.addEventListener('input', function () {
+        var tierSel = document.getElementById(inputId === 'reg-search' ? 'reg-tier' : (inputId === 'cohort-search' ? 'cohort-tier' : ''));
+
+        function apply() {
           var q = input.value.trim().toLowerCase();
+          var tier = tierSel ? (tierSel.value || '') : '';
           tbody.querySelectorAll('tr').forEach(function (tr) {
             var hay = (tr.getAttribute('data-search') || '');
-            tr.classList.toggle('hidden', q !== '' && hay.indexOf(q) === -1);
+            var rowTier = (tr.getAttribute('data-tier') || '').toLowerCase();
+            var matchesText = (q === '' || hay.indexOf(q) !== -1);
+            var matchesTier = true;
+            if (tier !== '') {
+              if (tier === '__unscored__') matchesTier = rowTier === '';
+              else matchesTier = rowTier === tier;
+            }
+            tr.classList.toggle('hidden', !(matchesText && matchesTier));
           });
-        });
+        }
+
+        input.addEventListener('input', apply);
+        if (tierSel) tierSel.addEventListener('change', apply);
       }
       bindFilter('reg-search', 'reg-tbody');
       bindFilter('cohort-search', 'cohort-tbody');

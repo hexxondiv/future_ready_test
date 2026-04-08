@@ -2607,7 +2607,7 @@
     const KEYS = ["A", "B", "C", "D"];
 
     let current = 0, answers = [];
-    let userData = { firstName: '', lastName: '', school: '', email: '', phone: '', designation: '' };
+    let userData = { firstName: '', lastName: '', school: '', email: '', phone: '', designation: '', registrationId: null };
 
     function show(id) {
       document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.animation = 'none'; });
@@ -2661,6 +2661,7 @@
         const noPhp = res.status === 404 || res.status === 501 || looksLikeHtml || looksLikePhpSource;
 
         if (res.ok && data.ok) {
+          if (typeof data.id === 'number') userData.registrationId = data.id;
           startTest();
           return;
         }
@@ -2757,10 +2758,21 @@
       return 3;
     }
 
-    function showResult() {
+    async function showResult() {
       const score = calcScore();
       const ti = getTierIdx(score);
       const tier = TIERS[ti];
+
+      // Best-effort: store score/tier against initial registration
+      try {
+        if (userData.registrationId) {
+          fetch('update_registration_result.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ registrationId: userData.registrationId, score }),
+          }).catch(() => {});
+        }
+      } catch (_) {}
 
       // Personalise the hero with user's name & school
       document.getElementById('result-eyebrow').textContent =

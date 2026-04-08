@@ -86,9 +86,23 @@ CREATE TABLE IF NOT EXISTS registrations (
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(64) NOT NULL,
   designation VARCHAR(120) NOT NULL,
+  score TINYINT UNSIGNED NULL,
+  tier_label VARCHAR(64) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL);
+
+    // Backfill older installs (ignore if columns already exist)
+    try {
+        $pdo->exec('ALTER TABLE registrations ADD COLUMN score TINYINT UNSIGNED NULL');
+    } catch (Throwable $e) {
+        // duplicate column, ignore
+    }
+    try {
+        $pdo->exec('ALTER TABLE registrations ADD COLUMN tier_label VARCHAR(64) NULL');
+    } catch (Throwable $e) {
+        // duplicate column, ignore
+    }
 
     $pdo->exec(<<<'SQL'
 CREATE TABLE IF NOT EXISTS cohort_membership (
