@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = (string)($_POST['csrf'] ?? '');
 
     if (!hash_equals($_SESSION['csrf'], $csrf)) {
-        if ($loggedIn && ($action === 'delete_registration' || $action === 'delete_cohort' || $action === 'export_registrations' || $action === 'export_cohort')) {
+        if ($loggedIn && ($action === 'delete_registration' || $action === 'delete_cohort' || $action === 'export_registrations' || $action === 'export_cohort' || $action === 'backfill_reg_scores')) {
             header('Location: index.php');
             exit;
         }
@@ -131,12 +131,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: index.php');
             exit;
         }
+    } elseif ($loggedIn && $action === 'backfill_reg_scores') {
+        try {
+            $pdo = futre_db();
+            // Backfill registrations.score/tier_label from the latest cohort_membership row for the same email.
+            // Only fills missing values to avoid overwriting newer captures.
+            $pdo->exec(<<<'SQL'
+UPDATE registrations r
+JOIN (
+  SELECT cm.email, cm.score, cm.tier_label
+  FROM cohort_membership cm
+  JOIN (
+    SELECT email, MAX(id) AS max_id
+    FROM cohort_membership
+    GROUP BY email
+  ) latest ON latest.email = cm.email AND latest.max_id = cm.id
+) x ON x.email = r.email
+SET r.score = COALESCE(r.score, x.score),
+    r.tier_label = COALESCE(r.tier_label, x.tier_label)
+SQL);
+        } catch (Throwable $e) {
+            // ignore
+        }
+        header('Location: index.php?tab=reg');
+        exit;
     }
 }
 
 $rows = [];
 $cohortRows = [];
 $dbError = null;
+$regMissingCount = 0;
 if ($loggedIn) {
     try {
         $pdo = futre_db();
@@ -145,6 +170,12 @@ if ($loggedIn) {
              FROM registrations ORDER BY id DESC'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $mstmt = $pdo->query('SELECT COUNT(*) AS c FROM registrations WHERE score IS NULL OR tier_label IS NULL');
+            $regMissingCount = (int)($mstmt->fetchColumn() ?: 0);
+        } catch (Throwable $e) {
+            $regMissingCount = 0;
+        }
         $cstmt = $pdo->query(
             'SELECT id, first_name, last_name, school, email, phone, designation, score, tier_label, created_at
              FROM cohort_membership ORDER BY id DESC'
@@ -666,6 +697,13 @@ $cohortCount = count($cohortRows);
                   <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
                   <button type="submit" class="btn btn-ghost">Export CSV</button>
                 </form>
+                <?php if ($regMissingCount > 0): ?>
+                  <form method="post" action="index.php" style="display:inline" data-confirm="Backfill score/tier for <?= (int)$regMissingCount ?> registration(s) from Cohort Memberships (match by email)?">
+                    <input type="hidden" name="action" value="backfill_reg_scores">
+                    <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+                    <button type="submit" class="btn btn-ghost" onclick="return confirm(this.form.dataset.confirm);">Sync score/tier</button>
+                  </form>
+                <?php endif; ?>
               </div>
               <div class="table-card">
                 <div class="table-scroll">
