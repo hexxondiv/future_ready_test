@@ -140,6 +140,17 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      background: transparent;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .logo-mark:focus { outline: none; }
+    .logo-mark:focus-visible {
+      outline: 3px solid rgba(232, 164, 39, 0.45);
+      outline-offset: 4px;
+      border-radius: 10px;
     }
 
     .logo-img {
@@ -2173,8 +2184,6 @@
       margin-top: 2px;
     }
 
-    .opt-info {}
-
     .opt-title {
       font-size: 13px;
       font-weight: 500;
@@ -2202,10 +2211,10 @@
 
     <!-- TOP BAR -->
     <header class="topbar">
-      <div class="logo-mark">
+      <a class="logo-mark" href="#screen-intro" onclick="show('screen-intro'); window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" aria-label="Back to start">
         <img src="logo.png" alt="Educare" class="logo-img">
         <span class="logo-text"></span>
-      </div>
+      </a>
       <span class="topbar-tag">South East Educators Conference 2026</span>
     </header>
 

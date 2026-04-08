@@ -164,6 +164,17 @@ $dbError = null;
 $regMissingCount = 0;
 $regTotal = 0;
 $cohortTotal = 0;
+$analytics = [
+    'tier_reg' => [],
+    'tier_cohort' => [],
+    'days' => [],
+    'regs' => [],
+    'cohorts' => [],
+    'last7_regs' => 0,
+    'prev7_regs' => 0,
+    'last7_cohort' => 0,
+    'prev7_cohort' => 0,
+];
 
 $regPage = isset($_GET['reg_page']) ? (int) $_GET['reg_page'] : 1;
 $cohortPage = isset($_GET['cohort_page']) ? (int) $_GET['cohort_page'] : 1;
@@ -249,6 +260,42 @@ if ($loggedIn) {
         $cstmt->bindValue(':off', $cohortOffset, PDO::PARAM_INT);
         $cstmt->execute();
         $cohortRows = $cstmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // ── Analytics (server-side aggregates) ────────────────────────────────
+        // Tier distributions
+        $t1 = $pdo->query('SELECT COALESCE(tier_label, "Unscored") AS tier, COUNT(*) AS c FROM registrations GROUP BY tier ORDER BY c DESC');
+        $analytics['tier_reg'] = $t1->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $t2 = $pdo->query('SELECT tier_label AS tier, COUNT(*) AS c FROM cohort_membership GROUP BY tier ORDER BY c DESC');
+        $analytics['tier_cohort'] = $t2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // Daily counts (last 14 days)
+        $days = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $days[] = gmdate('Y-m-d', time() - $i * 86400);
+        }
+        $analytics['days'] = $days;
+
+        $regMap = array_fill_keys($days, 0);
+        $cohortMap = array_fill_keys($days, 0);
+
+        $rs = $pdo->query("SELECT DATE(created_at) AS d, COUNT(*) AS c FROM registrations WHERE created_at >= (UTC_TIMESTAMP() - INTERVAL 13 DAY) GROUP BY DATE(created_at)");
+        foreach (($rs->fetchAll(PDO::FETCH_ASSOC) ?: []) as $r) {
+            $d = (string)($r['d'] ?? '');
+            if (isset($regMap[$d])) $regMap[$d] = (int)$r['c'];
+        }
+        $cs = $pdo->query("SELECT DATE(created_at) AS d, COUNT(*) AS c FROM cohort_membership WHERE created_at >= (UTC_TIMESTAMP() - INTERVAL 13 DAY) GROUP BY DATE(created_at)");
+        foreach (($cs->fetchAll(PDO::FETCH_ASSOC) ?: []) as $r) {
+            $d = (string)($r['d'] ?? '');
+            if (isset($cohortMap[$d])) $cohortMap[$d] = (int)$r['c'];
+        }
+        $analytics['regs'] = array_values($regMap);
+        $analytics['cohorts'] = array_values($cohortMap);
+
+        // Date-based comparisons: last 7 days vs previous 7 days (UTC)
+        $analytics['last7_regs'] = (int)($pdo->query("SELECT COUNT(*) FROM registrations WHERE created_at >= (UTC_TIMESTAMP() - INTERVAL 7 DAY)")->fetchColumn() ?: 0);
+        $analytics['prev7_regs'] = (int)($pdo->query("SELECT COUNT(*) FROM registrations WHERE created_at < (UTC_TIMESTAMP() - INTERVAL 7 DAY) AND created_at >= (UTC_TIMESTAMP() - INTERVAL 14 DAY)")->fetchColumn() ?: 0);
+        $analytics['last7_cohort'] = (int)($pdo->query("SELECT COUNT(*) FROM cohort_membership WHERE created_at >= (UTC_TIMESTAMP() - INTERVAL 7 DAY)")->fetchColumn() ?: 0);
+        $analytics['prev7_cohort'] = (int)($pdo->query("SELECT COUNT(*) FROM cohort_membership WHERE created_at < (UTC_TIMESTAMP() - INTERVAL 7 DAY) AND created_at >= (UTC_TIMESTAMP() - INTERVAL 14 DAY)")->fetchColumn() ?: 0);
     } catch (Throwable $e) {
         $dbError = 'Could not connect to MySQL. Check: (1) MySQL is running, (2) FUTRE_DB_* in .env or the environment — on Linux use FUTRE_DB_HOST=127.0.0.1 (not localhost) if root uses a password, (3) php -m includes pdo_mysql. See env.example.';
     }
@@ -670,6 +717,113 @@ $cohortCount = count($cohortRows);
       margin-bottom: 1rem;
       line-height: 1.45;
     }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card {
+      grid-column: span 12;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+    }
+    .card h3 {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .metric {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .metric-sub {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.9rem;
+      margin-top: 0.35rem;
+    }
+    .delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      color: #9ee8d9;
+    }
+    .delta.down { color: #f0a8a0; }
+    .delta .pill {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    @media (min-width: 860px) {
+      .card.sm { grid-column: span 4; }
+      .card.md { grid-column: span 6; }
+    }
+    .chart-title { display:flex; justify-content:space-between; gap:0.75rem; align-items:baseline; margin-bottom:0.75rem;}
+    .chart-title .label { font-weight: 700; }
+    .chart-title .hint { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 0.5rem;
+      align-items: end;
+      height: 170px;
+      padding: 0.5rem 0.25rem 0.25rem;
+    }
+    .bar {
+      height: 6px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .bar > span {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(232,164,39,0.85), rgba(232,164,39,0.35));
+      border-radius: 8px;
+    }
+    .bar.teal > span {
+      background: linear-gradient(180deg, rgba(0,198,167,0.85), rgba(0,198,167,0.35));
+    }
+    .bar-labels {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.35rem;
+      color: rgba(255,255,255,0.45);
+      font-size: 0.72rem;
+    }
+    .bar-labels span { text-align: center; }
+    .pie-wrap { display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: center; }
+    .pie {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(from 90deg, rgba(255,255,255,0.08) 0 100%);
+      border: 1px solid var(--border);
+      box-shadow: inset 0 0 0 8px rgba(10,22,40,0.35);
+    }
+    .legend { display: grid; gap: 0.4rem; }
+    .legend-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; }
+    .legend-left { display:flex; align-items:center; gap:0.5rem; min-width:0; }
+    .dot { width:10px; height:10px; border-radius:3px; flex: 0 0 auto; }
+    .legend-name { color: rgba(255,255,255,0.8); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .legend-val { color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 700; }
     .score-pill {
       display: inline-block;
       font-weight: 600;
@@ -753,7 +907,12 @@ $cohortCount = count($cohortRows);
       <?php else: ?>
         <div class="tabs" id="admin-tabs">
           <div class="tab-list" role="tablist" aria-label="Database tables">
-            <button type="button" class="tab" role="tab" id="tab-reg" aria-selected="true" aria-controls="panel-reg" tabindex="0">
+            <button type="button" class="tab" role="tab" id="tab-analytics" aria-selected="true" aria-controls="panel-analytics" tabindex="0">
+              <span class="tab-label-full">Analytics</span>
+              <span class="tab-label-short">Analytics</span>
+              <span class="tab-count" aria-hidden="true">Live</span>
+            </button>
+            <button type="button" class="tab" role="tab" id="tab-reg" aria-selected="false" aria-controls="panel-reg" tabindex="-1">
               <span class="tab-label-full">Step 1 · Registrations</span>
               <span class="tab-label-short">Registrations</span>
               <span class="tab-count" aria-hidden="true"><?= h((string)$count) ?></span>
@@ -765,7 +924,93 @@ $cohortCount = count($cohortRows);
             </button>
           </div>
 
-          <div class="tab-panel" role="tabpanel" id="panel-reg" aria-labelledby="tab-reg">
+          <div class="tab-panel" role="tabpanel" id="panel-analytics" aria-labelledby="tab-analytics">
+            <p class="tab-panel-desc">High-level performance and trends (UTC time).</p>
+
+            <?php
+              $conv = $regTotal > 0 ? round(($cohortTotal / $regTotal) * 100, 1) : 0.0;
+              $deltaRegs = $analytics['prev7_regs'] > 0 ? round((($analytics['last7_regs'] - $analytics['prev7_regs']) / $analytics['prev7_regs']) * 100, 1) : null;
+              $deltaCoh = $analytics['prev7_cohort'] > 0 ? round((($analytics['last7_cohort'] - $analytics['prev7_cohort']) / $analytics['prev7_cohort']) * 100, 1) : null;
+            ?>
+
+            <div class="cards">
+              <div class="card sm">
+                <h3>Total registrations</h3>
+                <div class="metric"><?= h((string)$regTotal) ?></div>
+                <div class="metric-sub">Last 7 days: <strong><?= h((string)$analytics['last7_regs']) ?></strong> · Prev 7: <strong><?= h((string)$analytics['prev7_regs']) ?></strong></div>
+                <?php if ($deltaRegs !== null): ?>
+                  <div class="delta <?= $deltaRegs < 0 ? 'down' : '' ?>">
+                    <span class="pill"><?= h(($deltaRegs >= 0 ? '+' : '') . (string)$deltaRegs . '%') ?></span>
+                    <span>vs previous 7 days</span>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <div class="card sm">
+                <h3>Total cohort memberships</h3>
+                <div class="metric"><?= h((string)$cohortTotal) ?></div>
+                <div class="metric-sub">Last 7 days: <strong><?= h((string)$analytics['last7_cohort']) ?></strong> · Prev 7: <strong><?= h((string)$analytics['prev7_cohort']) ?></strong></div>
+                <?php if ($deltaCoh !== null): ?>
+                  <div class="delta <?= $deltaCoh < 0 ? 'down' : '' ?>">
+                    <span class="pill"><?= h(($deltaCoh >= 0 ? '+' : '') . (string)$deltaCoh . '%') ?></span>
+                    <span>vs previous 7 days</span>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <div class="card sm">
+                <h3>Conversion</h3>
+                <div class="metric"><?= h((string)$conv) ?>%</div>
+                <div class="metric-sub">Cohort memberships / registrations</div>
+              </div>
+
+              <div class="card md">
+                <div class="chart-title">
+                  <div class="label">Daily registrations (last 14 days)</div>
+                  <div class="hint">Gold</div>
+                </div>
+                <div class="bars" id="bars-reg"></div>
+                <div class="bar-labels" id="labels-reg"></div>
+              </div>
+
+              <div class="card md">
+                <div class="chart-title">
+                  <div class="label">Daily cohort memberships (last 14 days)</div>
+                  <div class="hint">Teal</div>
+                </div>
+                <div class="bars" id="bars-cohort"></div>
+                <div class="bar-labels" id="labels-cohort"></div>
+              </div>
+
+              <div class="card md">
+                <div class="chart-title">
+                  <div class="label">Registrations by tier</div>
+                  <div class="hint">Includes “Unscored”</div>
+                </div>
+                <div class="pie-wrap">
+                  <div class="pie" id="pie-reg" aria-label="Registrations by tier pie chart"></div>
+                  <div class="legend" id="legend-reg"></div>
+                </div>
+              </div>
+
+              <div class="card md">
+                <div class="chart-title">
+                  <div class="label">Cohort memberships by tier</div>
+                  <div class="hint">Scored only</div>
+                </div>
+                <div class="pie-wrap">
+                  <div class="pie" id="pie-cohort" aria-label="Cohort memberships by tier pie chart"></div>
+                  <div class="legend" id="legend-cohort"></div>
+                </div>
+              </div>
+            </div>
+
+            <script>
+              window.__ANALYTICS__ = <?= json_encode($analytics, JSON_UNESCAPED_SLASHES) ?>;
+            </script>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="panel-reg" aria-labelledby="tab-reg" hidden>
             <p class="tab-panel-desc">Captured when visitors start the test (before questions).</p>
             <?php if ($count === 0): ?>
               <div class="table-card">
@@ -961,6 +1206,74 @@ $cohortCount = count($cohortRows);
   <?php if ($loggedIn && $dbError === null): ?>
   <script>
     (function () {
+      function fmtShortDate(iso) {
+        // iso: YYYY-MM-DD
+        try {
+          var parts = iso.split('-');
+          var d = new Date(Date.UTC(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)));
+          return d.toLocaleDateString(undefined, { month: 'short', day: '2-digit' });
+        } catch (e) { return iso; }
+      }
+
+      function renderBars(containerId, labelsId, values, labels, colorClass) {
+        var el = document.getElementById(containerId);
+        var lab = document.getElementById(labelsId);
+        if (!el || !lab) return;
+        var max = 0;
+        for (var i = 0; i < values.length; i++) max = Math.max(max, values[i] || 0);
+        max = Math.max(1, max);
+
+        el.innerHTML = values.map(function (v) {
+          var h = Math.round(((v || 0) / max) * 100);
+          return '<div class=\"bar ' + (colorClass || '') + '\" title=\"' + (v || 0) + '\"><span style=\"height:' + h + '%\"></span></div>';
+        }).join('');
+
+        lab.innerHTML = labels.map(function (d, i) {
+          // show every 2nd label for readability
+          return '<span>' + (i % 2 === 0 ? fmtShortDate(d) : '') + '</span>';
+        }).join('');
+      }
+
+      function renderPie(pieId, legendId, rows, palette) {
+        var pie = document.getElementById(pieId);
+        var legend = document.getElementById(legendId);
+        if (!pie || !legend) return;
+        rows = rows || [];
+        var total = rows.reduce(function (s, r) { return s + (parseInt(r.c, 10) || 0); }, 0);
+        if (total <= 0) {
+          pie.style.background = 'conic-gradient(from 90deg, rgba(255,255,255,0.08) 0 100%)';
+          legend.innerHTML = '<div class=\"cell-muted\">No data yet.</div>';
+          return;
+        }
+
+        var stops = [];
+        var start = 0;
+        legend.innerHTML = rows.map(function (r, idx) {
+          var c = parseInt(r.c, 10) || 0;
+          var pct = (c / total) * 100;
+          var col = palette[idx % palette.length];
+          var end = start + pct;
+          stops.push(col + ' ' + start.toFixed(2) + '% ' + end.toFixed(2) + '%');
+          start = end;
+          return '<div class=\"legend-row\">'
+            + '<div class=\"legend-left\"><span class=\"dot\" style=\"background:' + col + '\"></span>'
+            + '<div class=\"legend-name\">' + String(r.tier || '') + '</div></div>'
+            + '<div class=\"legend-val\">' + c + '</div>'
+            + '</div>';
+        }).join('');
+        pie.style.background = 'conic-gradient(from 90deg, ' + stops.join(',') + ')';
+      }
+
+      var a = window.__ANALYTICS__ || null;
+      if (a) {
+        renderBars('bars-reg', 'labels-reg', a.regs || [], a.days || [], '');
+        renderBars('bars-cohort', 'labels-cohort', a.cohorts || [], a.days || [], 'teal');
+        var paletteReg = ['#E8A427', '#5BA8E5', '#00C6A7', '#E05050', 'rgba(255,255,255,0.18)'];
+        var paletteCoh = ['#00C6A7', '#5BA8E5', '#E8A427', '#E05050'];
+        renderPie('pie-reg', 'legend-reg', a.tier_reg || [], paletteReg);
+        renderPie('pie-cohort', 'legend-cohort', a.tier_cohort || [], paletteCoh);
+      }
+
       function bindFilter(inputId, tbodyId) {
         var input = document.getElementById(inputId);
         var tbody = document.getElementById(tbodyId);
@@ -1025,9 +1338,9 @@ $cohortCount = count($cohortRows);
       });
 
       var params = new URLSearchParams(window.location.search);
-      if (params.get('tab') === 'cohort' && tabs[1]) {
-        selectTab(tabs[1]);
-      }
+      var tab = params.get('tab') || '';
+      if (tab === 'reg' && tabs[1]) selectTab(tabs[1]);
+      if (tab === 'cohort' && tabs[2]) selectTab(tabs[2]);
     })();
   </script>
   <?php endif; ?>
