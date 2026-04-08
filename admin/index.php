@@ -162,13 +162,78 @@ $rows = [];
 $cohortRows = [];
 $dbError = null;
 $regMissingCount = 0;
+$regTotal = 0;
+$cohortTotal = 0;
+
+$regPage = isset($_GET['reg_page']) ? (int) $_GET['reg_page'] : 1;
+$cohortPage = isset($_GET['cohort_page']) ? (int) $_GET['cohort_page'] : 1;
+$regLimit = isset($_GET['reg_limit']) ? (int) $_GET['reg_limit'] : 25;
+$cohortLimit = isset($_GET['cohort_limit']) ? (int) $_GET['cohort_limit'] : 25;
+
+if ($regPage < 1) $regPage = 1;
+if ($cohortPage < 1) $cohortPage = 1;
+$allowedLimits = [10, 25, 50, 100];
+if (!in_array($regLimit, $allowedLimits, true)) $regLimit = 25;
+if (!in_array($cohortLimit, $allowedLimits, true)) $cohortLimit = 25;
+
+function build_admin_url(array $overrides = []): string
+{
+    $q = array_merge($_GET, $overrides);
+    foreach ($q as $k => $v) {
+        if ($v === null) unset($q[$k]);
+    }
+    $qs = http_build_query($q);
+    return 'index.php' . ($qs ? ('?' . $qs) : '');
+}
+
+function clamp_page(int $page, int $total, int $limit): int
+{
+    if ($limit <= 0) return 1;
+    $maxPage = max(1, (int) ceil($total / $limit));
+    if ($page > $maxPage) return $maxPage;
+    if ($page < 1) return 1;
+    return $page;
+}
+
+function render_pager(string $prefix, int $page, int $limit, int $total): string
+{
+    $maxPage = max(1, (int) ceil($total / $limit));
+    $from = $total === 0 ? 0 : (($page - 1) * $limit + 1);
+    $to = min($total, $page * $limit);
+    $prevDisabled = $page <= 1 ? 'aria-disabled="true" tabindex="-1"' : '';
+    $nextDisabled = $page >= $maxPage ? 'aria-disabled="true" tabindex="-1"' : '';
+    $prevHref = $page <= 1 ? '#' : h(build_admin_url([$prefix . '_page' => $page - 1]));
+    $nextHref = $page >= $maxPage ? '#' : h(build_admin_url([$prefix . '_page' => $page + 1]));
+
+    return '<div class="pager">'
+        . '<div class="pager-meta">' . h((string) $from) . '–' . h((string) $to) . ' of ' . h((string) $total) . '</div>'
+        . '<div class="pager-actions">'
+        . '<a class="pager-btn" href="' . $prevHref . '" ' . $prevDisabled . '>Prev</a>'
+        . '<span class="pager-page">Page ' . h((string) $page) . ' / ' . h((string) $maxPage) . '</span>'
+        . '<a class="pager-btn" href="' . $nextHref . '" ' . $nextDisabled . '>Next</a>'
+        . '</div>'
+        . '</div>';
+}
+
 if ($loggedIn) {
     try {
         $pdo = futre_db();
-        $stmt = $pdo->query(
+        $regTotal = (int) ($pdo->query('SELECT COUNT(*) FROM registrations')->fetchColumn() ?: 0);
+        $cohortTotal = (int) ($pdo->query('SELECT COUNT(*) FROM cohort_membership')->fetchColumn() ?: 0);
+
+        $regPage = clamp_page($regPage, $regTotal, $regLimit);
+        $cohortPage = clamp_page($cohortPage, $cohortTotal, $cohortLimit);
+
+        $regOffset = ($regPage - 1) * $regLimit;
+        $cohortOffset = ($cohortPage - 1) * $cohortLimit;
+
+        $stmt = $pdo->prepare(
             'SELECT id, first_name, last_name, school, email, phone, designation, score, tier_label, created_at
-             FROM registrations ORDER BY id DESC'
+             FROM registrations ORDER BY id DESC LIMIT :lim OFFSET :off'
         );
+        $stmt->bindValue(':lim', $regLimit, PDO::PARAM_INT);
+        $stmt->bindValue(':off', $regOffset, PDO::PARAM_INT);
+        $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         try {
             $mstmt = $pdo->query('SELECT COUNT(*) AS c FROM registrations WHERE score IS NULL OR tier_label IS NULL');
@@ -176,10 +241,13 @@ if ($loggedIn) {
         } catch (Throwable $e) {
             $regMissingCount = 0;
         }
-        $cstmt = $pdo->query(
+        $cstmt = $pdo->prepare(
             'SELECT id, first_name, last_name, school, email, phone, designation, score, tier_label, created_at
-             FROM cohort_membership ORDER BY id DESC'
+             FROM cohort_membership ORDER BY id DESC LIMIT :lim OFFSET :off'
         );
+        $cstmt->bindValue(':lim', $cohortLimit, PDO::PARAM_INT);
+        $cstmt->bindValue(':off', $cohortOffset, PDO::PARAM_INT);
+        $cstmt->execute();
         $cohortRows = $cstmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Throwable $e) {
         $dbError = 'Could not connect to MySQL. Check: (1) MySQL is running, (2) FUTRE_DB_* in .env or the environment — on Linux use FUTRE_DB_HOST=127.0.0.1 (not localhost) if root uses a password, (3) php -m includes pdo_mysql. See env.example.';
@@ -449,6 +517,34 @@ $cohortCount = count($cohortRows);
       border-color: rgba(232,164,39,0.35);
       box-shadow: 0 0 0 3px rgba(232,164,39,0.12);
     }
+    .pager {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      border-top: 1px solid var(--border);
+      background: rgba(10,22,40,0.25);
+    }
+    .pager-meta { color: rgba(255,255,255,0.55); font-size: 0.85rem; }
+    .pager-actions { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .pager-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.45rem 0.7rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.03);
+    }
+    .pager-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .pager-btn[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
+    .pager-page { color: rgba(255,255,255,0.55); font-size: 0.85rem; padding: 0 0.25rem; }
     .table-card {
       background: var(--glass);
       backdrop-filter: blur(12px);
@@ -684,6 +780,18 @@ $cohortCount = count($cohortRows);
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                   <input type="search" id="reg-search" placeholder="Search name, school, email, phone, tier…" aria-label="Filter registrations">
                 </div>
+                <form method="get" action="index.php" style="display:inline">
+                  <input type="hidden" name="tab" value="reg">
+                  <input type="hidden" name="reg_page" value="1">
+                  <label class="cell-muted" style="font-size:0.8rem; margin-right:0.35rem">Per page</label>
+                  <select class="filter-select" name="reg_limit" aria-label="Registrations per page" onchange="this.form.submit()">
+                    <?php foreach ([10,25,50,100] as $lim): ?>
+                      <option value="<?= (int)$lim ?>" <?= $regLimit === (int)$lim ? 'selected' : '' ?>><?= (int)$lim ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <input type="hidden" name="cohort_page" value="<?= (int)$cohortPage ?>">
+                  <input type="hidden" name="cohort_limit" value="<?= (int)$cohortLimit ?>">
+                </form>
                 <select class="filter-select" id="reg-tier" aria-label="Filter registrations by tier">
                   <option value="">All tiers</option>
                   <option value="category leader">Category Leader</option>
@@ -751,6 +859,7 @@ $cohortCount = count($cohortRows);
                     </tbody>
                   </table>
                 </div>
+                <?= render_pager('reg', $regPage, $regLimit, $regTotal) ?>
               </div>
             <?php endif; ?>
           </div>
@@ -770,6 +879,18 @@ $cohortCount = count($cohortRows);
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                   <input type="search" id="cohort-search" placeholder="Search name, school, email, tier…" aria-label="Filter cohort sign-ups">
                 </div>
+                <form method="get" action="index.php" style="display:inline">
+                  <input type="hidden" name="tab" value="cohort">
+                  <input type="hidden" name="cohort_page" value="1">
+                  <label class="cell-muted" style="font-size:0.8rem; margin-right:0.35rem">Per page</label>
+                  <select class="filter-select" name="cohort_limit" aria-label="Cohort per page" onchange="this.form.submit()">
+                    <?php foreach ([10,25,50,100] as $lim): ?>
+                      <option value="<?= (int)$lim ?>" <?= $cohortLimit === (int)$lim ? 'selected' : '' ?>><?= (int)$lim ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <input type="hidden" name="reg_page" value="<?= (int)$regPage ?>">
+                  <input type="hidden" name="reg_limit" value="<?= (int)$regLimit ?>">
+                </form>
                 <select class="filter-select" id="cohort-tier" aria-label="Filter cohort memberships by tier">
                   <option value="">All tiers</option>
                   <option value="category leader">Category Leader</option>
@@ -829,6 +950,7 @@ $cohortCount = count($cohortRows);
                     </tbody>
                   </table>
                 </div>
+                <?= render_pager('cohort', $cohortPage, $cohortLimit, $cohortTotal) ?>
               </div>
             <?php endif; ?>
           </div>
